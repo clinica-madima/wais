@@ -397,8 +397,8 @@
     flashSaved._t = setTimeout(function () { el.style.opacity = '0'; }, 1500);
   }
 
-  function logoHTML(size) {
-    return '<img class="logo-img" src="logo.png" alt="Logo" style="' + (size === 'big' ? 'height:70px' : '') + '" onerror="this.style.display=\'none\'">';
+    function logoHTML(size) {
+    return '<img class="logo-img" src="https://i.imgur.com/isFp1jd.png" alt="Logo" style="' + (size === 'big' ? 'height:70px' : '') + '">';
   }
 
   function render() {
