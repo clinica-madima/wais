@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sequência de Imagens</title>
+<style>
+:root{
+  --bg:#f4f6fb; --card:#ffffff; --primary:#0d9488; --primary-dark:#0f766e;
+  --text:#1f2430; --muted:#6b7280; --danger:#e5484d; --success:#30a46c;
+  --radius:14px; --shadow:0 2px 10px rgba(31,36,48,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.hidden{display:none!important}
+button{cursor:pointer;font-family:inherit}
+input,select{font-family:inherit;font-size:15px;padding:10px 12px;border:1px solid #d7dbe8;border-radius:10px;background:#fff;color:var(--text)}
+input:focus,select:focus{outline:2px solid var(--primary);border-color:transparent}
+
+.topbar{background:var(--primary);color:#fff;padding:14px 20px;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.topbar-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{font-size:19px;font-weight:700}
+.topbar-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.role-badge{background:rgba(255,255,255,.2);padding:4px 12px;border-radius:20px;font-size:13px}
+
+main{max-width:1100px;margin:0 auto;padding:24px 20px}
+.view{padding:10px 0}
+.page-title{margin-bottom:18px;font-size:24px}
+.panel{max-width:440px;margin:60px auto;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:32px;text-align:center}
+.panel h2{margin-bottom:12px}
+.panel p{margin-bottom:14px;color:var(--muted);line-height:1.5}
+.form-col{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+.form-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
+.hint{font-size:13px;color:var(--muted);margin:8px 0}
+.empty{color:var(--muted);text-align:center;padding:30px 0}
+
+.btn{display:inline-block;border:none;border-radius:10px;padding:10px 18px;font-size:15px;font-weight:600;background:#e8ebf3;color:var(--text);transition:filter .15s}
+.btn:hover{filter:brightness(.96)}
+.btn.primary{background:var(--primary);color:#fff}
+.btn.danger{background:var(--danger);color:#fff}
+.btn.small{padding:6px 12px;font-size:13px;border-radius:8px}
+.btn-mini{width:34px;height:34px;border-radius:8px;border:1px solid #d7dbe8;background:#fff;cursor:pointer;font-size:14px;color:var(--text)}
+.btn-mini:hover{background:#f0f2f8}
+
+.folder-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.folder-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;cursor:pointer;transition:transform .15s,box-shadow .15s;border-left:5px solid var(--primary)}
+.folder-card:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(31,36,48,.12)}
+.folder-name{font-size:20px;font-weight:700;margin-bottom:6px}
+.folder-meta{color:var(--muted);font-size:13px}
+
+.activity-head{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px;margin-bottom:20px}
+.activity-head h2{margin:8px 0}
+.activity-info{display:flex;gap:24px;flex-wrap:wrap;margin:10px 0;font-size:15px}
+.activity-info strong{font-size:20px;color:var(--primary)}
+.activity-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+.card-grid{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;padding:10px 0 30px}
+.card{width:200px;cursor:pointer;position:relative}
+.card-inner{position:relative;width:100%;height:260px;transform-style:preserve-3d;transition:transform .5s}
+.card.flipped .card-inner{transform:rotateY(180deg)}
+.card-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);background:#fff;display:flex;align-items:center;justify-content:center}
+.card-front{background:#fff}
+.card-media{width:100%;height:100%;object-fit:contain;border:none}
+.card-back{transform:rotateY(180deg);background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;flex-direction:row;align-items:center;justify-content:center;gap:10px}
+.back-order{font-size:58px;font-weight:800;line-height:1}
+.back-dash{font-size:40px;opacity:.7}
+.back-letter{font-size:58px;font-weight:800;line-height:1}
+.card-controls{display:flex;justify-content:center;gap:8px;margin-top:8px}
+
+.admin-head{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px;margin-bottom:20px}
+.admin-head h2{margin:8px 0}
+.tabs{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.tab-btn{border:1px solid #d7dbe8;background:#fff;border-radius:8px;padding:8px 16px;font-size:14px;font-weight:600;color:var(--muted)}
+.tab-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.admin-section{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:18px}
+.admin-section h3{margin-bottom:12px}
+.folder-admin-list,.ip-list,.card-admin-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.folder-admin-item,.ip-item,.card-admin-item{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#f8f9fd;border:1px solid #e6e9f2;border-radius:10px;padding:10px 14px;flex-wrap:wrap}
+.folder-admin-name{font-weight:700}
+.thumb{width:52px;height:52px;object-fit:cover;border-radius:8px;border:1px solid #e6e9f2}
+@media(max-width:640px){
+  .card{width:150px}
+  .card-inner{height:200px}
+  .back-order,.back-letter{font-size:44px}
+  .back-dash{font-size:30px}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <span class="brand">Sequência de Imagens</span>
+    <div class="topbar-actions">
+      <span id="home-user-label" class="role-badge"></span>
+      <button id="home-admin-btn" class="btn small hidden" onclick="openAdmin()">Painel Admin</button>
+      <button class="btn small" onclick="logout()">Sair</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <div id="view-ip-error" class="view hidden">
+    <div class="panel">
+      <h2>Não foi possível identificar seu IP</h2>
+      <p>Verifique sua conexão com a internet e tente novamente.</p>
+      <button class="btn primary" onclick="location.reload()">Tentar de novo</button>
+    </div>
+  </div>
+
+  <div id="view-blocked" class="view hidden">
+    <div class="panel">
+      <h2>Acesso não liberado</h2>
+      <p>Seu IP <strong id="blocked-ip"></strong> não está na lista de acesso.</p>
+      <p>Peça ao administrador para liberar este IP.</p>
+      <div class="form-row" style="justify-content:center">
+        <input id="master-code-input" placeholder="Código de acesso (se tiver)" style="width:200px">
+        <button class="btn primary" onclick="tryMasterCode()">Entrar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-login" class="view hidden">
+    <div class="panel">
+      <h2>Painel do Administrador</h2>
+      <p>Insira a senha do administrador para gerenciar pastas, cartões e IPs.</p>
+      <div class="form-col">
+        <input type="password" id="admin-pass" placeholder="Senha do administrador">
+        <button class="btn primary" onclick="adminLogin()">Entrar</button>
+      </div>
+      <button class="btn small" onclick="renderHome()">Voltar</button>
+    </div>
+  </div>
+
+  <div id="view-home" class="view hidden">
+    <h2 class="page-title">Pastas de atividade</h2>
+    <div id="folder-list" class="folder-grid"></div>
+  </div>
+
+  <div id="view-activity" class="view hidden">
+    <div class="activity-head">
+      <button class="btn small" onclick="renderHome()">← Voltar</button>
+      <h2 id="activity-title"></h2>
+      <div class="activity-info">
+        <span>Palavra-alvo: <strong id="activity-target"></strong></span>
+        <span>Sua sequência: <strong id="activity-sequence"></strong></span>
+      </div>
+      <div class="activity-actions">
+        <button class="btn small" onclick="shuffleCards()">Embaralhar</button>
+        <button class="btn small" onclick="resetOrder()">Ordem original</button>
+        <button class="btn small" onclick="flipAll()">Virar todas</button>
+        <button class="btn small" onclick="unflipAll()">Desvirar todas</button>
+      </div>
+    </div>
+    <div id="card-grid" class="card-grid"></div>
+  </div>
+
+  <div id="view-admin" class="view hidden">
+    <div class="admin-head">
+      <button class="btn small" onclick="renderHome()">← Voltar</button>
+      <h2>Painel do Administrador</h2>
+      <div class="tabs">
+        <button class="tab-btn" data-tab="folders" onclick="setAdminTab('folders')">Pastas</button>
+        <button class="tab-btn" data-tab="ips" onclick="setAdminTab('ips')">IPs</button>
+        <button class="tab-btn" data-tab="settings" onclick="setAdminTab('settings')">Configurações</button>
+      </div>
+    </div>
+    <div id="admin-folders"></div>
+    <div id="admin-ips" class="hidden"></div>
+    <div id="admin-settings" class="hidden"></div>
+  </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ============================================
+// CONFIGURAÇÃO: cole aqui os dados do Supabase
+// (Supabase Dashboard > Settings > API)
+// ============================================
+const SUPABASE_URL = 'COLE_AQUI_SUA_URL';          // ex: https://abcd1234.supabase.co
+const SUPABASE_ANON_KEY = 'COLE_AQUI_SUA_CHAVE_ANON';
+
+const supabase = window.supabase.createClient(sb_publishable_lkW9_XEASaFGWMdPaM6R9A_m_0UUl-3, eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhdGFvYmxoYmtxcWp0eXNpbHhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzMDYzMTIsImV4cCI6MjEwMzg4MjMxMn0.lTQnKSol-nrphI60Vtjko5eBtIYx87-_cc90A2YKJ3U);
+
+const state = {
+  ip: null,
+  role: null,
+  adminAuthed: sessionStorage.getItem('adminAuthed') === '1',
+  folders: [],
+  currentFolder: null,
+  cards: [],
+  dragIndex: null
+};
+
+let adminTab = 'folders';
+let editingFolderId = null;
+
+// ===== Utilitários =====
+function showView(id){
+  document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+async function sha256(text){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+function esc(s){
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ===== IP e controle de acesso =====
+async function getClientIP(){
+  const sources = ['https://api.ipify.org?format=json', 'https://ipapi.co/json/'];
+  for (const src of sources){
+    try{
+      const r = await fetch(src);
+      const d = await r.json();
+      if (d && d.ip) return d.ip;
+    }catch(e){}
+  }
+  return null;
+}
+
+async function init(){
+  state.ip = await getClientIP();
+  if (!state.ip){ showView('view-ip-error'); return; }
+  const { data } = await supabase.from('allowed_ips').select('*').eq('ip', state.ip).maybeSingle();
+  if (data){
+    state.role = data.role;
+    renderHome();
+    return;
+  }
+  const { count } = await supabase.from('allowed_ips').select('*', { count: 'exact', head: true });
+  if (count === 0){
+    await supabase.from('allowed_ips').insert({ ip: state.ip, role: 'admin', label: 'Primeiro acesso (admin)' });
+    state.role = 'admin';
+    renderHome();
+    return;
+  }
+  showView('view-blocked');
+  document.getElementById('blocked-ip').textContent = state.ip;
+}
+
+async function tryMasterCode(){
+  const code = document.getElementById('master-code-input').value.trim();
+  if (!code) return;
+  const { data } = await supabase.from('settings').select('value').eq('key','master_code').single();
+  if (data && data.value && code === data.value){
+    await supabase.from('allowed_ips').insert({ ip: state.ip, role: 'admin', label: 'Acesso via código' });
+    state.role = 'admin';
+    renderHome();
+  } else {
+    alert('Código incorreto.');
+  }
+}
+
+// ===== Tela inicial (lista de pastas) =====
+async function renderHome(){
+  showView('view-home');
+  const { data: folders } = await supabase.from('folders').select('*').order('created_at');
+  state.folders = folders || [];
+  const { data: allCards } = await supabase.from('cards').select('folder_id');
+  const counts = {};
+  (allCards || []).forEach(c => { counts[c.folder_id] = (counts[c.folder_id] || 0) + 1; });
+  const list = document.getElementById('folder-list');
+  if (state.folders.length === 0){
+    list.innerHTML = '<p class="empty">Nenhuma pasta criada ainda.</p>';
+  } else {
+    list.innerHTML = state.folders.map(f => `
+      <div class="folder-card" onclick="openFolder('${f.id}')">
+        <div class="folder-name">${esc(f.name)}</div>
+        <div class="folder-meta">${counts[f.id] || 0} cartão(ões)</div>
+      </div>`).join('');
+  }
+  document.getElementById('home-admin-btn').classList.toggle('hidden', state.role !== 'admin');
+  document.getElementById('home-user-label').textContent = state.role === 'admin' ? 'Administrador' : 'Psicólogo(a)';
+}
+
+// ===== Atividade (reorganizar e virar cartões) =====
+async function openFolder(folderId){
+  state.currentFolder = state.folders.find(f => f.id === folderId);
+  const { data } = await supabase.from('cards').select('*').eq('folder_id', folderId).order('position');
+  state.cards = (data || []).map(c => ({ ...c, flipped: false }));
+  renderActivity();
+}
+
+function renderActivity(){
+  showView('view-activity');
+  document.getElementById('activity-title').textContent = state.currentFolder ? state.currentFolder.name : '';
+  const target = [...state.cards].sort((a,b) => a.position - b.position).map(c => c.letter).join('');
+  const current = state.cards.map(c => c.letter).join(' ');
+  document.getElementById('activity-target').textContent = target || '—';
+  document.getElementById('activity-sequence').textContent = current || '—';
+  const grid = document.getElementById('card-grid');
+  if (state.cards.length === 0){
+    grid.innerHTML = '<p class="empty">Esta pasta não tem cartões.</p>';
+    return;
+  }
+  grid.innerHTML = state.cards.map((c, i) => cardHTML(c, i)).join('');
+}
+
+function cardHTML(c, i){
+  const isPdf = /\.pdf$/i.test(c.image_url);
+  const media = isPdf
+    ? `<iframe src="${esc(c.image_url)}" class="card-media" title="PDF"></iframe>`
+    : `<img src="${esc(c.image_url)}" class="card-media" alt="Cartão">`;
+  return `
+  <div class="card ${c.flipped ? 'flipped' : ''}" draggable="true"
+       data-index="${i}"
+       ondragstart="onDragStart(event, ${i})"
+       ondragover="onDragOver(event)"
+       ondrop="onDrop(event, ${i})"
+       onclick="flipCard(${i})">
+    <div class="card-inner">
+      <div class="card-face card-front">${media}</div>
+      <div class="card-face card-back">
+        <div class="back-order">${esc(c.position)}</div>
+        <div class="back-dash">-</div>
+        <div class="back-letter">${esc(c.letter)}</div>
+      </div>
+    </div>
+    <div class="card-controls" onclick="event.stopPropagation()">
+      <button class="btn-mini" onclick="moveCard(${i}, -1)" title="Mover para a esquerda">◀</button>
+      <button class="btn-mini" onclick="moveCard(${i}, 1)" title="Mover para a direita">▶</button>
+    </div>
+  </div>`;
+}
+
+function flipCard(i){
+  state.cards[i].flipped = !state.cards[i].flipped;
+  const el = document.querySelector(`.card[data-index="${i}"]`);
+  if (el) el.classList.toggle('flipped', state.cards[i].flipped);
+}
+function moveCard(i, delta){
+  const j = i + delta;
+  if (j < 0 || j >= state.cards.length) return;
+  [state.cards[i], state.cards[j]] = [state.cards[j], state.cards[i]];
+  renderActivity();
+}
+function onDragStart(e, i){
+  state.dragIndex = i;
+  e.dataTransfer.effectAllowed = 'move';
+}
+function onDragOver(e){ e.preventDefault(); }
+function onDrop(e, i){
+  e.preventDefault();
+  if (state.dragIndex === null || state.dragIndex === i) return;
+  const [moved] = state.cards.splice(state.dragIndex, 1);
+  state.cards.splice(i, 0, moved);
+  state.dragIndex = null;
+  renderActivity();
+}
+function shuffleCards(){
+  for (let i = state.cards.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [state.cards[i], state.cards[j]] = [state.cards[j], state.cards[i]];
+  }
+  renderActivity();
+}
+function resetOrder(){
+  state.cards.sort((a, b) => a.position - b.position);
+  renderActivity();
+}
+function flipAll(){ state.cards.forEach(c => c.flipped = true); renderActivity(); }
+function unflipAll(){ state.cards.forEach(c => c.flipped = false); renderActivity(); }
+
+// ===== Painel do administrador =====
+function openAdmin(){
+  if (!state.adminAuthed){ showView('view-login'); return; }
+  renderAdmin();
+}
+async function adminLogin(){
+  const pass = document.getElementById('admin-pass').value;
+  const { data } = await supabase.from('settings').select('value').eq('key','admin_password_hash').single();
+  const stored = data ? data.value : '';
+  if (stored === ''){
+    if (pass === 'admin123'){
+      await supabase.from('settings').upsert({ key: 'admin_password_hash', value: await sha256(pass) });
+      state.adminAuthed = true;
+      sessionStorage.setItem('adminAuthed','1');
+      renderAdmin();
+      alert('Senha padrão confirmada. Troque a senha em Configurações.');
+    } else {
+      alert('Senha incorreta. A senha padrão é admin123 (troque depois).');
+    }
+    return;
+  }
+  const hash = await sha256(pass);
+  if (hash === stored){
+    state.adminAuthed = true;
+    sessionStorage.setItem('adminAuthed','1');
+    renderAdmin();
+  } else {
+    alert('Senha incorreta.');
+  }
+}
+function logout(){
+  sessionStorage.removeItem('adminAuthed');
+  state.adminAuthed = false;
+  location.reload();
+}
+
+function setAdminTab(tab){ adminTab = tab; renderAdmin(); }
+function renderAdmin(){
+  showView('view-admin');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === adminTab));
+  document.getElementById('admin-folders').classList.toggle('hidden', adminTab !== 'folders');
+  document.getElementById('admin-ips').classList.toggle('hidden', adminTab !== 'ips');
+  document.getElementById('admin-settings').classList.toggle('hidden', adminTab !== 'settings');
+  if (adminTab === 'folders') renderAdminFolders();
+  if (adminTab === 'ips') renderAdminIPs();
+  if (adminTab === 'settings') renderAdminSettings();
+}
+
+// --- Aba Pastas ---
+async function renderAdminFolders(){
+  const { data } = await supabase.from('folders').select('*').order('created_at');
+  state.folders = data || [];
+  const box = document.getElementById('admin-folders');
+  box.innerHTML = `
+    <div class="admin-section">
+      <h3>Pastas</h3>
+      <div class="form-row">
+        <input id="new-folder-name" placeholder="Nome da pasta (ex: CAP)" style="flex:1;min-width:180px">
+        <button class="btn primary" onclick="createFolder()">Criar pasta</button>
+      </div>
+      <div class="folder-admin-list">
+        ${state.folders.map(f => `
+          <div class="folder-admin-item">
+            <span class="folder-admin-name">${esc(f.name)}</span>
+            <div>
+              <button class="btn small" onclick="editFolder('${f.id}')">Editar cartões</button>
+              <button class="btn small danger" onclick="deleteFolder('${f.id}')">Excluir</button>
+            </div>
+          </div>`).join('') || '<p class="empty">Nenhuma pasta.</p>'}
+      </div>
+    </div>
+    <div id="folder-editor"></div>`;
+}
+
+async function createFolder(){
+  const name = document.getElementById('new-folder-name').value.trim();
+  if (!name){ alert('Digite um nome para a pasta.'); return; }
+  await supabase.from('folders').insert({ name });
+  renderAdminFolders();
+}
+
+async function deleteFolder(id){
+  if (!confirm('Excluir esta pasta e todos os cartões?')) return;
+  await supabase.from('cards').delete().eq('folder_id', id);
+  await supabase.from('folders').delete().eq('id', id);
+  if (editingFolderId === id) editingFolderId = null;
+  renderAdminFolders();
+}
+
+async function editFolder(id){
+  editingFolderId = id;
+  const folder = state.folders.find(f => f.id === id);
+  const { data: cards } = await supabase.from('cards').select('*').eq('folder_id', id).order('position');
+  const editor = document.getElementById('folder-editor');
+  editor.innerHTML = `
+    <div class="admin-section">
+      <h3>Cartões da pasta "${esc(folder.name)}"</h3>
+      <div class="form-row">
+        <input type="file" id="card-file" accept="image/*,.pdf" style="flex:1;min-width:200px">
+        <input id="card-letter" placeholder="Letra" maxlength="3" style="width:90px">
+        <input id="card-position" type="number" placeholder="Ordem" style="width:90px">
+        <button class="btn primary" onclick="addCard()">Adicionar</button>
+      </div>
+      <div class="card-admin-list">
+        ${(cards || []).map(c => `
+          <div class="card-admin-item">
+            <img src="${esc(c.image_url)}" class="thumb" alt="">
+            <span>Ordem ${esc(c.position)} | Letra ${esc(c.letter)}</span>
+            <div>
+              <button class="btn small" onclick="editCard('${c.id}')">Editar</button>
+              <button class="btn small danger" onclick="deleteCard('${c.id}')">Excluir</button>
+            </div>
+          </div>`).join('') || '<p class="empty">Nenhum cartão. Adicione acima.</p>'}
+      </div>
+    </div>`;
+}
+
+async function addCard(){
+  const file = document.getElementById('card-file').files[0];
+  const letter = document.getElementById('card-letter').value.trim().toUpperCase();
+  const position = parseInt(document.getElementById('card-position').value, 10);
+  if (!file || !letter || isNaN(position)){
+    alert('Preencha imagem/PDF, letra e ordem.');
+    return;
+  }
+  const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+  const path = `${editingFolderId}/${Date.now()}.${ext}`;
+  const { error } = await supabase.storage.from('cards').upload(path, file);
+  if (error){ alert('Erro no upload: ' + error.message); return; }
+  const { data: { publicUrl } } = supabase.storage.from('cards').getPublicUrl(path);
+  await supabase.from('cards').insert({ folder_id: editingFolderId, position, letter, image_url: publicUrl });
+  editFolder(editingFolderId);
+}
+
+async function editCard(id){
+  const { data } = await supabase.from('cards').select('*').eq('id', id).single();
+  if (!data) return;
+  const letter = prompt('Nova letra:', data.letter);
+  if (letter === null) return;
+  const position = prompt('Nova ordem (número):', String(data.position));
+  if (position === null) return;
+  await supabase.from('cards').update({
+    letter: letter.trim().toUpperCase(),
+    position: parseInt(position, 10)
+  }).eq('id', id);
+  editFolder(editingFolderId);
+}
+
+async function deleteCard(id){
+  if (!confirm('Excluir este cartão?')) return;
+  await supabase.from('cards').delete().eq('id', id);
+  editFolder(editingFolderId);
+}
+
+// --- Aba IPs ---
+async function renderAdminIPs(){
+  const { data } = await supabase.from('allowed_ips').select('*').order('created_at');
+  const box = document.getElementById('admin-ips');
+  box.innerHTML = `
+    <div class="admin-section">
+      <h3>IPs liberados</h3>
+      <p class="hint">Seu IP atual: <strong>${esc(state.ip)}</strong>
+        <button class="btn small" onclick="addMyIP()">Adicionar meu IP</button></p>
+      <div class="form-row">
+        <input id="new-ip" placeholder="IP (ex: 200.100.50.10)" style="flex:1;min-width:160px">
+        <select id="new-ip-role">
+          <option value="psychologist">Psicólogo(a)</option>
+          <option value="admin">Administrador</option>
+        </select>
+        <input id="new-ip-label" placeholder="Identificação (ex: Consultório)" style="flex:1;min-width:160px">
+        <button class="btn primary" onclick="addIP()">Liberar</button>
+      </div>
+      <div class="ip-list">
+        ${(data || []).map(r => `
+          <div class="ip-item">
+            <span><strong>${esc(r.ip)}</strong> (${r.role === 'admin' ? 'Admin' : 'Psicólogo'})${r.label ? ' · ' + esc(r.label) : ''}</span>
+            <button class="btn small danger" onclick="deleteIP('${r.id}')">Remover</button>
+          </div>`).join('') || '<p class="empty">Nenhum IP liberado.</p>'}
+      </div>
+    </div>`;
+}
+
+async function addMyIP(){
+  await supabase.from('allowed_ips').insert({ ip: state.ip, role: 'admin', label: 'Meu IP' });
+  renderAdminIPs();
+}
+async function addIP(){
+  const ip = document.getElementById('new-ip').value.trim();
+  const role = document.getElementById('new-ip-role').value;
+  const label = document.getElementById('new-ip-label').value.trim();
+  if (!ip){ alert('Digite o IP.'); return; }
+  await supabase.from('allowed_ips').insert({ ip, role, label });
+  renderAdminIPs();
+}
+async function deleteIP(id){
+  if (!confirm('Remover este IP?')) return;
+  await supabase.from('allowed_ips').delete().eq('id', id);
+  renderAdminIPs();
+}
+
+// --- Aba Configurações ---
+async function renderAdminSettings(){
+  const box = document.getElementById('admin-settings');
+  box.innerHTML = `
+    <div class="admin-section">
+      <h3>Trocar senha do administrador</h3>
+      <div class="form-col">
+        <input type="password" id="cur-pass" placeholder="Senha atual">
+        <input type="password" id="new-pass" placeholder="Nova senha">
+        <input type="password" id="new-pass2" placeholder="Confirmar nova senha">
+        <button class="btn primary" onclick="changePassword()">Salvar senha</button>
+      </div>
+    </div>
+    <div class="admin-section">
+      <h3>Código de acesso de emergência</h3>
+      <p class="hint">Usado na tela de IP bloqueado para liberar o acesso sem depender do IP.</p>
+      <div class="form-row">
+        <input id="new-master" placeholder="Novo código" style="flex:1;min-width:180px">
+        <button class="btn primary" onclick="changeMasterCode()">Salvar código</button>
+      </div>
+    </div>`;
+}
+
+async function changePassword(){
+  const cur = document.getElementById('cur-pass').value;
+  const n1 = document.getElementById('new-pass').value;
+  const n2 = document.getElementById('new-pass2').value;
+  if (n1.length < 4){ alert('A nova senha deve ter ao menos 4 caracteres.'); return; }
+  if (n1 !== n2){ alert('As senhas não conferem.'); return; }
+  const { data } = await supabase.from('settings').select('value').eq('key','admin_password_hash').single();
+  const stored = data ? data.value : '';
+  if (stored !== '' && await sha256(cur) !== stored){ alert('Senha atual incorreta.'); return; }
+  await supabase.from('settings').upsert({ key: 'admin_password_hash', value: await sha256(n1) });
+  alert('Senha alterada.');
+}
+
+async function changeMasterCode(){
+  const code = document.getElementById('new-master').value.trim();
+  if (code.length < 4){ alert('O código deve ter ao menos 4 caracteres.'); return; }
+  await supabase.from('settings').upsert({ key: 'master_code', value: code });
+  alert('Código alterado.');
+}
+
+// ===== Início =====
+if (SUPABASE_URL.startsWith('COLE') || SUPABASE_ANON_KEY.startsWith('COLE')){
+  document.body.innerHTML = '<div class="panel"><h2>Configuração pendente</h2><p>Abra o arquivo index.html e cole sua URL e chave anon do Supabase no topo do script.</p></div>';
+} else {
+  init();
+}
+</script>
+</body>
+</html>
